@@ -1,5 +1,7 @@
 import { app } from "./app";
+import { databaseAdapter } from "./dependencies";
 
+databaseAdapter.start();
 
 const port = 3000
 app.listen(port, () => {
