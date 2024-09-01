@@ -12,7 +12,11 @@ export class WatchlistController {
         return this.watchlistRepository.getWatchlistByWatchListId(id);
     }
 
-    public addWatchlistItem(userId: number, watchlistId: number, movieId: number) {
-        this.watchlistRepository.addWatchlistItem(userId, watchlistId, movieId);
+    public addWatchlistItem(userId: number, movieId: number, watchlistId?: number) {
+        if (typeof watchlistId !== undefined) {
+            this.watchlistRepository.addWatchlistItem(userId, movieId, watchlistId);
+        } else {
+            this.watchlistRepository.addWatchlistItem(userId, movieId);
+        }
     }
 }
