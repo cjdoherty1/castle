@@ -12,7 +12,7 @@ export class WatchlistController {
         return this.watchlistRepository.getWatchlistByWatchListId(id);
     }
 
-    public addWatchlistItem(watchlistId: number, movieId: number) {
-        this.watchlistRepository.addWatchlistItem(watchlistId, movieId);
+    public addWatchlistItem(userId: number, watchlistId: number, movieId: number) {
+        this.watchlistRepository.addWatchlistItem(userId, watchlistId, movieId);
     }
 }

@@ -29,9 +29,8 @@ export class WatchlistRepository {
     return watchlist;
   }
 
-  async addWatchlistItem(watchlistId: number, movieId: number) {
-    //NEED TO ADD SOMETHING THAT PREVENTS ADDING A MOVIE THAT IS ALREADY ON THE LIST, or maybe that should be on the front end?
-    const newWatchlistItem: InsertWatchlist = { id: 7, watchlistId: watchlistId, userId: 1, movieId: movieId };  //CHANGE USERID TO USE GLOBAL USER ID VARIABLE. ALSO CHANGE id
+  async addWatchlistItem(userId: number, watchlistId: number, movieId: number) {
+    const newWatchlistItem: InsertWatchlist = { watchlistId: watchlistId, userId: userId, movieId: movieId };  
     await this.databaseAdapter.getClient().insert(watchlistsTable).values(newWatchlistItem);
   }
 }
