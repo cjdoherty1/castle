@@ -1,7 +1,7 @@
 import express from "express";
 import router from "./router"
 import bodyParser from 'body-parser';
-import watchlistRouter from './watchlist/watchlistRouter'
+import watchlistRouter from './routers/watchlistRouter'
 
 
 const app = express();

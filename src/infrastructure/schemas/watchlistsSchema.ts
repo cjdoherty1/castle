@@ -1,11 +1,10 @@
-import { bigint, bigserial } from 'drizzle-orm/pg-core';
+import { text, bigint, bigserial } from 'drizzle-orm/pg-core';
 import { castleSchema } from './castleSchema';
 
 export const watchlistsTable = castleSchema.table('watchlists', {
   id: bigserial('id', { mode: 'number'}).primaryKey(),
-  watchlistId: bigint('watchlist_id', { mode: 'number'}),
-  userId: bigint('user_id', { mode: 'number'}),
-  movieId: bigint('movie_id', { mode: 'number'})
+  userId: text('user_id'),
+  watchlistName: text('watchlist_name')
 });
 
 export type InsertWatchlist = typeof watchlistsTable.$inferInsert;

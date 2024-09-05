@@ -8,15 +8,12 @@ export class WatchlistController {
         this.watchlistRepository = watchlistRepository;
     }
 
-    public getWatchlistByWatchlistId(id: number): Watchlist {
-        return this.watchlistRepository.getWatchlistByWatchListId(id);
+    public async getWatchlistByWatchlistId(id: number): Promise<Watchlist> {
+        const watchlist = await this.watchlistRepository.getWatchlistByWatchListId(id);
+        return watchlist;
     }
 
-    public addWatchlistItem(userId: number, movieId: number, watchlistId?: number) {
-        if (typeof watchlistId !== undefined) {
-            this.watchlistRepository.addWatchlistItem(userId, movieId, watchlistId);
-        } else {
-            this.watchlistRepository.addWatchlistItem(userId, movieId);
-        }
+    public addWatchlistItem( watchlistId: number, movieId: number) {
+        this.watchlistRepository.addWatchlistItem(watchlistId, movieId);
     }
 }

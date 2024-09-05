@@ -10,10 +10,12 @@ export type WatchlistItem = {
 
 export class Watchlist {
     readonly watchlistId: number;
+    readonly watchlistName: string;
     readonly movies: Movie[] = [];
 
     constructor(watchlistId: number, movies: object[]) {
         this.watchlistId = watchlistId;
+        this.watchlistName = movies[0]['watchlistName'];
 
         for (let movie of movies) {
             let typedMovie = new Movie(movie['id'], movie['title'], movie['director']);
