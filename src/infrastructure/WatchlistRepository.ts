@@ -4,6 +4,7 @@ import { InsertWatchlistItem, SelectWatchlistItem, watchlistItemsTable } from '.
 import { moviesTable } from './schemas/moviesSchema';
 import { DatabaseAdapter } from './DatabaseAdapter';
 import { Watchlist } from '../business/watchlist/Watchlist';
+import { NotFoundError } from '../business/Errors';
 
 
 
@@ -19,13 +20,23 @@ export class WatchlistRepository {
     async getWatchlistByWatchListId(id: SelectWatchlist['id']): Promise<
     Watchlist
   > {
-    const response = await this.databaseAdapter.getClient().select({
-      watchlistName: watchlistsTable.watchlistName,
+    const watchlistNameResponse = await this.databaseAdapter.getClient().select({
+      watchlistName: watchlistsTable.watchlistName
+    }).from(watchlistsTable).where(eq(watchlistsTable.id, id));
+
+    if (watchlistNameResponse.length == 0) {
+      throw new NotFoundError("This watchlist cannot be found.");
+    }
+
+    let watchlistName = watchlistNameResponse[0].watchlistName;
+
+    const moviesResponse = await this.databaseAdapter.getClient().select({
       movieId: moviesTable.movieId,
       title: moviesTable.title,
       director: moviesTable.director
-    }).from(watchlistsTable).innerJoin(watchlistItemsTable, eq(watchlistsTable.id, watchlistItemsTable.watchlistId)).innerJoin(moviesTable, eq(watchlistItemsTable.movieId, moviesTable.movieId)).where(eq(watchlistsTable.id, id));
-    let watchlist = new Watchlist(id, response);
+    }).from(watchlistItemsTable).innerJoin(moviesTable, eq(watchlistItemsTable.movieId, moviesTable.movieId)).where(eq(watchlistItemsTable.watchlistId, id));
+
+    let watchlist = new Watchlist(id, watchlistName, moviesResponse);
     return watchlist;
   }
 
@@ -35,5 +46,17 @@ export class WatchlistRepository {
     let newId = maxId[0].max + 1;
     newWatchlistItem = { id: newId, watchlistId: watchlistId, movieId: movieId };  
     await this.databaseAdapter.getClient().insert(watchlistItemsTable).values(newWatchlistItem);
+  }
+
+  async createWatchlist(userId: string, watchlistName: string) {
+    let newWatchlist: InsertWatchlist;
+    let maxId = await this.databaseAdapter.getClient().select({ max: max(watchlistsTable.id) }).from(watchlistsTable);
+    let newId = maxId[0].max + 1;
+    newWatchlist = {
+      id: newId,
+      userId: userId,
+      watchlistName: watchlistName
+    }
+    await this.databaseAdapter.getClient().insert(watchlistsTable).values(newWatchlist);
   }
 }

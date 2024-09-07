@@ -16,4 +16,8 @@ export class WatchlistController {
     public addWatchlistItem( watchlistId: number, movieId: number) {
         this.watchlistRepository.addWatchlistItem(watchlistId, movieId);
     }
+
+    public createWatchlist(userId: string, watchlistName: string) {
+        this.watchlistRepository.createWatchlist(userId, watchlistName);
+    }
 }
