@@ -2,6 +2,7 @@ import express from "express";
 
 import bodyParser from 'body-parser';
 import watchlistRouter from './routers/watchlistRouter'
+import { errorHandler } from "./middleware";
 
 
 const app = express();
@@ -17,6 +18,7 @@ app.get("/health", (req, res) => {
 
 
 app.use('/watchlist', watchlistRouter);
+app.use(errorHandler);
 
 export { app };
 

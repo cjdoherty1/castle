@@ -1,5 +1,7 @@
 import { WatchlistRepository } from "../../infrastructure/WatchlistRepository";
-import { Watchlist } from "../../business/watchlist/Watchlist";
+import { NextFunction, Response } from "express";
+import { AuthRequest } from "../middleware";
+
 
 
 export class WatchlistController {
@@ -8,9 +10,15 @@ export class WatchlistController {
         this.watchlistRepository = watchlistRepository;
     }
 
-    public async getWatchlistByWatchlistId(id: number): Promise<Watchlist> {
-        const watchlist = await this.watchlistRepository.getWatchlistByWatchListId(id);
-        return watchlist;
+    public async getWatchlistByWatchlistId(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const userId = req.token.sub;
+            const watchlist = await this.watchlistRepository.getWatchlistByWatchListId(parseInt(req.params["watchlistId"]), userId);
+            res.json({ watchlist: watchlist });
+        } catch(e) {
+            console.log(e);
+            next(e);
+        }
     }
 
     public addWatchlistItem( watchlistId: number, movieId: number) {
