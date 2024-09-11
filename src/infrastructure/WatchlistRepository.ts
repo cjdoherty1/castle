@@ -1,18 +1,10 @@
-import { max, eq, and } from "drizzle-orm";
-import {
-    InsertWatchlist,
-    SelectWatchlist,
-    watchlistsTable,
-} from "./schemas/watchlistsSchema";
-import {
-    InsertWatchlistItem,
-    SelectWatchlistItem,
-    watchlistItemsTable,
-} from "./schemas/watchlistItemsSchema";
+import { max, eq, and, sql } from "drizzle-orm";
+import { InsertWatchlist, watchlistsTable } from "./schemas/watchlistsSchema";
+import { watchlistItemsTable } from "./schemas/watchlistItemsSchema";
 import { moviesTable } from "./schemas/moviesSchema";
 import { DatabaseAdapter } from "./DatabaseAdapter";
-import { Watchlist } from "../business/watchlist/Watchlist";
-import { NotFoundError } from "../business/Errors";
+import { Watchlist, WatchlistItem } from "../business/watchlist/Watchlist";
+import { NotFoundError, DatabaseError } from "../business/Errors";
 
 // --- MAKE USER ID A GLOBAL VARIABLE ---
 
@@ -24,7 +16,7 @@ export class WatchlistRepository {
     }
 
     async getWatchlistByWatchListId(
-        id: SelectWatchlist["id"],
+        id: number,
         userId: string
     ): Promise<Watchlist> {
         const drizzle = this.databaseAdapter.getClient();
@@ -34,7 +26,10 @@ export class WatchlistRepository {
             })
             .from(watchlistsTable)
             .where(
-                and(eq(watchlistsTable.id, id), eq(watchlistsTable.userId, userId))
+                and(
+                    eq(watchlistsTable.id, id),
+                    eq(watchlistsTable.userId, userId)
+                )
             );
 
         if (watchlistNameResponse.length == 0) {
@@ -61,40 +56,55 @@ export class WatchlistRepository {
         return watchlist;
     }
 
-    async addWatchlistItem(watchlistId: number, movieId: number) {
-        let newWatchlistItem: InsertWatchlist;
-        let maxId = await this.databaseAdapter
-            .getClient()
-            .select({ max: max(watchlistItemsTable.id) })
-            .from(watchlistItemsTable);
-        let newId = maxId[0].max + 1;
-        newWatchlistItem = {
-            id: newId,
-            watchlistId: watchlistId,
-            movieId: movieId,
-        };
-        await this.databaseAdapter
-            .getClient()
-            .insert(watchlistItemsTable)
-            .values(newWatchlistItem);
+    async addWatchlistItem(
+        watchlistId: number,
+        movieId: number,
+        userId: string
+    ) {
+        try {
+            const drizzle = this.databaseAdapter.getClient();
+            const insertResponse =
+                await drizzle.execute(sql`insert into ${watchlistItemsTable} (watchlist_id, movie_id)
+                                  select w.id, m.movie_id
+                                  from ${watchlistsTable} w, ${moviesTable} m
+                                  where w.id = ${watchlistId} 
+                                  and m.movie_id = ${movieId} 
+                                  and w.user_id = ${userId}
+                                  returning ${watchlistItemsTable}.id, ${watchlistItemsTable}.watchlist_id, ${watchlistItemsTable}.movie_id`);
+            if (insertResponse.length == 0) {
+                throw new NotFoundError(
+                    "This watchlist or movie cannot be found."
+                );
+            }
+            const watchlistItem: WatchlistItem = {
+                id: insertResponse[0].id,
+                watchlistId: insertResponse[0].watchlist_id,
+                movieId: insertResponse[0].movie_id,
+            };
+
+            return watchlistItem;
+        } catch (e) {
+            if (e instanceof NotFoundError) {
+                throw e;
+            } else {
+                throw new DatabaseError(e.message);
+            }
+        }
     }
 
     async createWatchlist(userId: string, watchlistName: string) {
-        let newWatchlist: InsertWatchlist;
-        let maxId = await this.databaseAdapter
-            .getClient()
-            .select({ max: max(watchlistsTable.id) })
-            .from(watchlistsTable);
-        let newId = maxId[0].max + 1;
-        newWatchlist = {
-            id: newId,
-            userId: userId,
-            watchlistName: watchlistName,
-        };
-        await this.databaseAdapter
-            .getClient()
-            .insert(watchlistsTable)
-            .values(newWatchlist);
+        try {
+            const newWatchlist = {
+                userId: userId,
+                watchlistName: watchlistName,
+            };
+            await this.databaseAdapter
+                .getClient()
+                .insert(watchlistsTable)
+                .values(newWatchlist);
+        } catch (e) {
+            throw new DatabaseError(e.message);
+        }
     }
 
     //REMOVE MOVIE

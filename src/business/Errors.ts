@@ -18,3 +18,10 @@ export class AccessForbiddenError extends Error {
         this.name = "AccessForbiddenError";
     }
 }
+
+export class DatabaseError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = "DatabaseError"
+    }
+}

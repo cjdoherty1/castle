@@ -1,10 +1,9 @@
 import { Movie } from "../movies/Movie";
 
 
-export type WatchlistItem = {
+export interface WatchlistItem {
     id: number;
     watchlistId: number;
-    userId: number;
     movieId: number;
 }
 
