@@ -1,7 +1,7 @@
 export class NotFoundError extends Error {
     constructor(message: string) {
         super(message);
-        this.name = "NotFoundError"
+        this.name = "NotFoundError";
     }
 }
 
@@ -22,6 +22,6 @@ export class AccessForbiddenError extends Error {
 export class DatabaseError extends Error {
     constructor(message: string) {
         super(message);
-        this.name = "DatabaseError"
+        this.name = "DatabaseError";
     }
 }

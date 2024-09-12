@@ -36,17 +36,18 @@ export class WatchlistController {
         req: AuthRequest,
         res: Response,
         next: NextFunction
-    ) {
+    ): Promise<void> {
         try {
             console.log("Adding watchlist item");
             const watchlistId = parseInt(req.params[params.watchlistId]);
             const movieId = parseInt(req.params[params.movieId]);
             const userId = req.token.sub;
-            const watchlistItem = await this.watchlistRepository.addWatchlistItem(
-                watchlistId,
-                movieId,
-                userId
-            );
+            const watchlistItem =
+                await this.watchlistRepository.addWatchlistItem(
+                    watchlistId,
+                    movieId,
+                    userId
+                );
             console.log("Added watchlist by watchlist id:");
             console.log(watchlistItem);
             res.status(201).json({ watchlistItem: watchlistItem });
@@ -60,12 +61,15 @@ export class WatchlistController {
         req: AuthRequest,
         res: Response,
         next: NextFunction
-    ) {
+    ): Promise<void> {
         try {
             console.log("Creating watchlist");
             const watchlistName = req.params[params.watchlistName];
             const userId = req.token.sub;
-            const watchlist = await this.watchlistRepository.createWatchlist(watchlistName, userId);
+            const watchlist = await this.watchlistRepository.createWatchlist(
+                watchlistName,
+                userId
+            );
             console.log("Created watchlist:");
             console.log(watchlist);
             res.status(201).json({ watchlist: watchlist });
@@ -79,15 +83,18 @@ export class WatchlistController {
         req: AuthRequest,
         res: Response,
         next: NextFunction
-    ) {
+    ): Promise<void> {
         try {
             console.log("Deleted watchlist item");
-            const watchlistItemId = parseInt(req.params[params.watchlistItemId]);
-            const userId = req.token.sub;
-            const watchlistItem = await this.watchlistRepository.deleteWatchlistItem(
-                watchlistItemId,
-                userId
+            const watchlistItemId = parseInt(
+                req.params[params.watchlistItemId]
             );
+            const userId = req.token.sub;
+            const watchlistItem =
+                await this.watchlistRepository.deleteWatchlistItem(
+                    watchlistItemId,
+                    userId
+                );
             console.log("Deleted watchlist item:");
             console.log(watchlistItem);
             res.status(202).json({ watchlistItem: watchlistItem });
@@ -101,15 +108,18 @@ export class WatchlistController {
         req: AuthRequest,
         res: Response,
         next: NextFunction
-    ) {
+    ): Promise<void> {
         try {
             console.log("Delete watchlist");
             const watchlistId = parseInt(req.params[params.watchlistId]);
             const userId = req.token.sub;
-            const watchlist = await this.watchlistRepository.deleteWatchlist(watchlistId, userId);
+            const watchlist = await this.watchlistRepository.deleteWatchlist(
+                watchlistId,
+                userId
+            );
             console.log("Deleted watchlist:");
             console.log(watchlist);
-            
+
             res.status(202).json({ watchlist: watchlist });
         } catch (e) {
             console.log(e);

@@ -1,23 +1,35 @@
 import { Movie } from "../movies/Movie";
 
-
-export interface WatchlistItem {
-    id: number;
+export interface WatchlistItemTableEntry {
+    watchlistItemId: number;
     watchlistId: number;
     movieId: number;
+}
+
+export class WatchlistItem {
+    readonly watchlistItemId: number;
+    readonly movie: Movie;
+
+    constructor(watchlistItemId: number, movie: Movie) {
+        this.watchlistItemId = watchlistItemId;
+        this.movie = movie;
+    }
 }
 
 export class Watchlist {
     readonly watchlistId: number;
     readonly watchlistName: string;
-    readonly movies: Movie[] = [];
+    readonly watchlistItems: WatchlistItem[] = [];
 
-    constructor(watchlistId: number, watchlistName: string, movies: object[]) {
+    constructor(
+        watchlistId: number,
+        watchlistName: string,
+        watchlistItems?: WatchlistItem[]
+    ) {
         this.watchlistId = watchlistId;
         this.watchlistName = watchlistName;
-        for (let movie of movies) {
-            let typedMovie = new Movie(movie['movieId'], movie['title'], movie['director']);
-            this.movies.push(typedMovie);
+        if (typeof watchlistItems !== undefined) {
+            this.watchlistItems = watchlistItems;
         }
     }
 }

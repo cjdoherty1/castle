@@ -3,7 +3,7 @@ import { databaseAdapter } from "./dependencies";
 
 databaseAdapter.start();
 
-const port = 31000
+const port = 31000;
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
-})
+});

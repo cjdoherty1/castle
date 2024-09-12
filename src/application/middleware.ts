@@ -15,14 +15,30 @@ export const params = {
     watchlistId: "watchlistId",
     movieId: "movieId",
     watchlistItemId: "watchlistItemId",
-    watchlistName: "watchlistName"
-}
+    watchlistName: "watchlistName",
+};
 
 export const validateParams = [
-    param(params.watchlistId).optional().isInt().notEmpty().withMessage("Invalid watchlistId"),
-    param(params.movieId).optional().isInt().notEmpty().withMessage("Invalid movieId"),
-    param(params.watchlistItemId).optional().isString().notEmpty().withMessage("Invalid watchlistId"),
-    param(params.watchlistName).optional().isString().notEmpty().withMessage("Invalid watchlistName"),
+    param(params.watchlistId)
+        .optional()
+        .isInt()
+        .notEmpty()
+        .withMessage("Invalid watchlistId"),
+    param(params.movieId)
+        .optional()
+        .isInt()
+        .notEmpty()
+        .withMessage("Invalid movieId"),
+    param(params.watchlistItemId)
+        .optional()
+        .isInt()
+        .notEmpty()
+        .withMessage("Invalid watchlistId"),
+    param(params.watchlistName)
+        .optional()
+        .isString()
+        .notEmpty()
+        .withMessage("Invalid watchlistName"),
 
     (req, res, next: NextFunction) => {
         const errors = validationResult(req);
@@ -59,17 +75,17 @@ export function errorHandler(
     req: AuthRequest,
     res: Response,
     next: NextFunction
-) {
+): void {
     const errorStatus = getErrorStatus(e);
     res.status(errorStatus).json({ error: e.message });
 }
 
-function getErrorStatus(e: Error) {
+function getErrorStatus(e: Error): number {
     if (e instanceof BadRequestError) {
         return 400;
     } else if (e instanceof NotFoundError) {
         return 404;
     } else {
-        return 500
+        return 500;
     }
 }

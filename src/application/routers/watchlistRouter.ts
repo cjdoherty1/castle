@@ -4,7 +4,7 @@ import {
     AuthRequest,
     validateAuthentication,
     validateParams,
-    params
+    params,
 } from "../middleware";
 
 const watchlistRouter = express.Router();
