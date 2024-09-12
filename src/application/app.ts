@@ -1,5 +1,4 @@
 import express from "express";
-
 import bodyParser from 'body-parser';
 import watchlistRouter from './routers/watchlistRouter'
 import { errorHandler } from "./middleware";

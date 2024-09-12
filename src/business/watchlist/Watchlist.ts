@@ -15,7 +15,6 @@ export class Watchlist {
     constructor(watchlistId: number, watchlistName: string, movies: object[]) {
         this.watchlistId = watchlistId;
         this.watchlistName = watchlistName;
-
         for (let movie of movies) {
             let typedMovie = new Movie(movie['movieId'], movie['title'], movie['director']);
             this.movies.push(typedMovie);

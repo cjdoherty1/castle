@@ -19,6 +19,7 @@ export class WatchlistRepository {
         id: number,
         userId: string
     ): Promise<Watchlist> {
+        console.log("Getting watchlist from database");
         const drizzle = this.databaseAdapter.getClient();
         const watchlistNameResponse = await drizzle
             .select({
@@ -35,6 +36,8 @@ export class WatchlistRepository {
         if (watchlistNameResponse.length == 0) {
             throw new NotFoundError("This watchlist cannot be found.");
         }
+
+        console.log("Retrieved watchlist name from database");
 
         let watchlistName = watchlistNameResponse[0].watchlistName;
 
@@ -53,6 +56,8 @@ export class WatchlistRepository {
             .where(eq(watchlistItemsTable.watchlistId, id));
 
         let watchlist = new Watchlist(id, watchlistName, moviesResponse);
+        console.log("Retrieved watchlist from database:");
+        console.log(watchlist);
         return watchlist;
     }
 
@@ -62,6 +67,7 @@ export class WatchlistRepository {
         userId: string
     ) {
         try {
+            console.log("Adding watchlist item to database");
             const drizzle = this.databaseAdapter.getClient();
             const insertResponse =
                 await drizzle.execute(sql`insert into ${watchlistItemsTable} (watchlist_id, movie_id)
@@ -82,6 +88,9 @@ export class WatchlistRepository {
                 movieId: insertResponse[0].movie_id,
             };
 
+            console.log("Added watchlist item to database:");
+            console.log(watchlistItem);
+
             return watchlistItem;
         } catch (e) {
             if (e instanceof NotFoundError) {
@@ -92,8 +101,9 @@ export class WatchlistRepository {
         }
     }
 
-    async createWatchlist(userId: string, watchlistName: string) {
+    async createWatchlist(watchlistName: string, userId: string) {
         try {
+            console.log("Adding watchlist to database");
             const newWatchlist = {
                 userId: userId,
                 watchlistName: watchlistName,
@@ -102,12 +112,77 @@ export class WatchlistRepository {
                 .getClient()
                 .insert(watchlistsTable)
                 .values(newWatchlist);
+            console.log("Created watchlist");
         } catch (e) {
             throw new DatabaseError(e.message);
         }
     }
 
-    //REMOVE MOVIE
+    async deleteWatchlistItem(watchlistItemId: number, userId: string) {
+        try {
+            console.log("Deleting watchlist item from database");
+            const drizzle = this.databaseAdapter.getClient();
+            const deleteResponse =
+            await drizzle.execute(sql`delete from ${watchlistItemsTable} wi
+                                      using ${watchlistsTable} w
+                                      where wi.id = ${watchlistItemId}
+                                      and wi.watchlist_id = w.id
+                                      and w.user_id = ${userId}
+                                      returning wi.id, wi.watchlist_id, wi.movie_id`);
+            if (deleteResponse.length == 0) {
+                throw new NotFoundError(
+                    "This watchlist or movie cannot be found."
+                );
+            }
+            const watchlistItem: WatchlistItem = {
+                id: deleteResponse[0].id,
+                watchlistId: deleteResponse[0].watchlist_id,
+                movieId: deleteResponse[0].movie_id,
+            };
 
-    //DELETE WATCHLIST (no flag)
+            console.log("Deleted watchlist item from database:");
+            console.log(watchlistItem);
+
+            return watchlistItem;
+        } catch (e) {
+            if (e instanceof NotFoundError) {
+                throw e;
+            } else {
+                throw new DatabaseError(e.message);
+            }
+        }
+    }
+
+    async deleteWatchlist(watchlistId: string, userId: string) {
+        try {
+            console.log("Deleting watchlist from database");
+            const drizzle = this.databaseAdapter.getClient();
+            const deleteResponse = await drizzle.transaction(async (tx) => {
+                await drizzle.execute(sql`delete from castle.watchlist_items wi
+                                          using castle.watchlists w
+                                          where wi.watchlist_id = ${watchlistId}
+                                          and wi.watchlist_id = w.id
+                                          and w.user_id = ${userId};`);
+                return await drizzle.execute(sql`delete from castle.watchlists w
+                                          where w.id = ${watchlistId}
+                                          and w.user_id = ${userId}
+                                          returning w.id, w.user_id, w.watchlist_name;`);
+            });
+            if (deleteResponse.length == 0) {
+                throw new NotFoundError(
+                    "This watchlist cannot be found."
+                );
+            }
+            let watchlist = new Watchlist(deleteResponse[0].id, deleteResponse[0].watchlist_name, []);  
+            console.log("Deleted watchlist from database:");
+            console.log(watchlist);  
+            return watchlist;
+        } catch (e) {
+            if (e instanceof NotFoundError) {
+                throw e;
+            } else {
+                throw new DatabaseError(e.message);
+            }
+        }
+    }
 }

@@ -4,12 +4,13 @@ import {
     AuthRequest,
     validateAuthentication,
     validateParams,
+    params
 } from "../middleware";
 
 const watchlistRouter = express.Router();
 
 watchlistRouter.get(
-    "/getWatchlist/:watchlistId",
+    "/getWatchlist/:" + params.watchlistId,
     validateParams,
     validateAuthentication,
     (req: AuthRequest, res, next) => {
@@ -18,7 +19,7 @@ watchlistRouter.get(
 );
 
 watchlistRouter.post(
-    "/addWatchlistItem/:watchlistId/:movieId",
+    "/addWatchlistItem/:" + params.watchlistId + "/:" + params.movieId,
     validateParams,
     validateAuthentication,
     (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -27,11 +28,29 @@ watchlistRouter.post(
 );
 
 watchlistRouter.post(
-    "/createWatchlist/:watchlistName",
+    "/createWatchlist/:" + params.watchlistName,
     validateParams,
     validateAuthentication,
     (req: AuthRequest, res: Response, next: NextFunction) => {
         watchlistController.createWatchlist(req, res, next);
+    }
+);
+
+watchlistRouter.delete(
+    "/deleteWatchlistItem/:" + params.watchlistItemId,
+    validateParams,
+    validateAuthentication,
+    (req: AuthRequest, res: Response, next: NextFunction) => {
+        watchlistController.deleteWatchlistItem(req, res, next);
+    }
+);
+
+watchlistRouter.delete(
+    "/deleteWatchlist/:" + params.watchlistId,
+    validateParams,
+    validateAuthentication,
+    (req: AuthRequest, res: Response, next: NextFunction) => {
+        watchlistController.deleteWatchlist(req, res, next);
     }
 );
 

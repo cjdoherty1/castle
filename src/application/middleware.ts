@@ -11,11 +11,18 @@ export interface Token {
     sub: string;
 }
 
-export const validateParams = [
-    param("watchlistId").optional().isInt().notEmpty().withMessage("Invalid watchlistId"),
-    param("movieId").optional().isInt().notEmpty().withMessage("Invalid movieId"),
-    param("watchlistName").optional().isString().notEmpty().withMessage("Invalid watchlistName"),
+export const params = {
+    watchlistId: "watchlistId",
+    movieId: "movieId",
+    watchlistItemId: "watchlistItemId",
+    watchlistName: "watchlistName"
+}
 
+export const validateParams = [
+    param(params.watchlistId).optional().isInt().notEmpty().withMessage("Invalid watchlistId"),
+    param(params.movieId).optional().isInt().notEmpty().withMessage("Invalid movieId"),
+    param(params.watchlistItemId).optional().isString().notEmpty().withMessage("Invalid watchlistId"),
+    param(params.watchlistName).optional().isString().notEmpty().withMessage("Invalid watchlistName"),
 
     (req, res, next: NextFunction) => {
         const errors = validationResult(req);
@@ -60,9 +67,9 @@ export function errorHandler(
 function getErrorStatus(e: Error) {
     if (e instanceof BadRequestError) {
         return 400;
-    }
-
-    if (e instanceof NotFoundError) {
+    } else if (e instanceof NotFoundError) {
         return 404;
+    } else {
+        return 500
     }
 }
