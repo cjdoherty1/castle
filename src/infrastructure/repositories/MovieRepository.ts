@@ -8,7 +8,7 @@ export class MovieRepository implements IMovieRepository {
         this.databaseAdapter = databaseAdapter;
     }
 
-    async searchMovie(query: string) {
+    async searchMovie(searchQuery: string) {
 
     }
 
