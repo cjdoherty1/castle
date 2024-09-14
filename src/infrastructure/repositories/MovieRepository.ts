@@ -8,7 +8,7 @@ export class MovieRepository {
         this.databaseAdapter = databaseAdapter;
     }
 
-    async searchMovie(query: string) {
+    async searchMovie(searchQuery: string) {
 
     }
 

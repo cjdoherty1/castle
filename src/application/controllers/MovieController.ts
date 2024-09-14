@@ -15,8 +15,8 @@ export class MovieController {
     ): Promise<void> {
         try {
             console.log("Searching movies");
-            const query = req.params["query"];
-            const searchResults = await this.movieRepository.searchMovie(query);
+            const searchQuery = req.params["searchQuery"];
+            const searchResults = await this.movieRepository.searchMovie(searchQuery);
             console.log("Retrieved search results:");
             console.log(searchResults);
             res.status(200).json({ searchResults: searchResults });
