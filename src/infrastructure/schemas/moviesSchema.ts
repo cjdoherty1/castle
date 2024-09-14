@@ -5,6 +5,7 @@ export const moviesTable = castleSchema.table("movies", {
     movieId: bigserial("movie_id", { mode: "number" }).primaryKey(),
     title: text("title"),
     director: text("director"),
+    posterPath: text("poster_path"),
 });
 
 export type InsertMovies = typeof moviesTable.$inferInsert;

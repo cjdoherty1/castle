@@ -1,4 +1,4 @@
-import { WatchlistRepository } from "../../infrastructure/WatchlistRepository";
+import { WatchlistRepository } from "../../infrastructure/repositories/WatchlistRepository";
 import { NextFunction, Response } from "express";
 import { AuthRequest } from "../middleware";
 import { params } from "../middleware";

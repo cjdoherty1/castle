@@ -1,15 +1,15 @@
-import { max, eq, and, sql } from "drizzle-orm";
-import { InsertWatchlist, watchlistsTable } from "./schemas/watchlistsSchema";
-import { watchlistItemsTable } from "./schemas/watchlistItemsSchema";
-import { moviesTable } from "./schemas/moviesSchema";
-import { DatabaseAdapter } from "./DatabaseAdapter";
+import { eq, and, sql } from "drizzle-orm";
+import { watchlistsTable } from "../schemas/watchlistsSchema";
+import { watchlistItemsTable } from "../schemas/watchlistItemsSchema";
+import { moviesTable } from "../schemas/moviesSchema";
+import { DatabaseAdapter } from "../DatabaseAdapter";
 import {
     Watchlist,
     WatchlistItem,
     WatchlistItemTableEntry,
-} from "../business/watchlist/Watchlist";
-import { Movie } from "../business/movies/Movie";
-import { NotFoundError, DatabaseError } from "../business/Errors";
+} from "../../business/watchlist/Watchlist";
+import { Movie } from "../../business/movies/Movie";
+import { NotFoundError, DatabaseError } from "../../business/Errors";
 
 export class WatchlistRepository {
     private databaseAdapter;
@@ -53,6 +53,7 @@ export class WatchlistRepository {
                 movieId: moviesTable.movieId,
                 title: moviesTable.title,
                 director: moviesTable.director,
+                posterPath: moviesTable.posterPath
             })
             .from(watchlistItemsTable)
             .innerJoin(
@@ -71,7 +72,8 @@ export class WatchlistRepository {
                 movie = new Movie(
                     watchlistItemResponse.movieId,
                     watchlistItemResponse.title,
-                    watchlistItemResponse.director
+                    watchlistItemResponse.director,
+                    watchlistItemResponse.poster_path
                 );
                 watchlistItems.push(
                     new WatchlistItem(
