@@ -25,3 +25,10 @@ export class DatabaseError extends Error {
         this.name = "DatabaseError";
     }
 }
+
+export class NetworkError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = 'NetworkError';
+    }
+}
