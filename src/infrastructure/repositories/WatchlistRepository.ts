@@ -10,12 +10,15 @@ import {
 } from "../../business/watchlist/Watchlist";
 import { Movie } from "../../business/movies/Movie";
 import { NotFoundError, DatabaseError } from "../../business/Errors";
+import { MovieApiAdapter } from "../movies/MovieApiAdapter";
 
 export class WatchlistRepository {
-    private databaseAdapter;
+    private databaseAdapter: DatabaseAdapter;
+    private movieApiAdapter: MovieApiAdapter;
 
-    constructor(databaseAdapter: DatabaseAdapter) {
+    constructor(databaseAdapter: DatabaseAdapter, movieApiAdapter: MovieApiAdapter) {
         this.databaseAdapter = databaseAdapter;
+        this.movieApiAdapter = movieApiAdapter;
     }
 
     async getWatchlistByWatchListId(

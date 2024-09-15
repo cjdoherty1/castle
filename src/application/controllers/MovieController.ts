@@ -1,6 +1,6 @@
 import { MovieRepository } from "../../infrastructure/repositories/MovieRepository";
 import { NextFunction, Response } from "express";
-import { AuthRequest } from "../middleware";
+import { AuthRequest, params } from "../middleware";
 
 export class MovieController {
     private movieRepository;
@@ -15,8 +15,9 @@ export class MovieController {
     ): Promise<void> {
         try {
             console.log("Searching movies");
-            const searchQuery = req.params["searchQuery"];
-            const searchResults = await this.movieRepository.searchMovie(searchQuery);
+            const searchQuery = req.params[params.searchQuery];
+            const pageNumber = req.params[params.pageNumber]
+            const searchResults = await this.movieRepository.searchMovie(searchQuery, pageNumber);
             console.log("Retrieved search results:");
             console.log(searchResults);
             res.status(200).json({ searchResults: searchResults });
@@ -29,7 +30,7 @@ export class MovieController {
     public async getMovie(req: AuthRequest, res: Response, next: NextFunction) {
         try {
             console.log("Getting movie");
-            const movieId = req.params["movieId"];
+            const movieId = req.params[params.movieId];
             const movie = await this.movieRepository.getMovie(movieId);
             console.log("Retrieved movie:");
             console.log(movie);
@@ -42,7 +43,7 @@ export class MovieController {
 
     public async addMovie(req: AuthRequest, res: Response, next: NextFunction) {
         console.log("Adding movie");
-        const movieId = req.params["movieId"];
+        const movieId = req.params[params.movieId];
         const movie = await this.movieRepository.addMovie(movieId);
         console.log("Added movie:");
         console.log(movie);
