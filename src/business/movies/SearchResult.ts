@@ -13,7 +13,7 @@ export class PersonSearchResult {
 }
 
 interface MovieSearchResultParams {
-    id: number;
+    movieId: number;
     title: string;
     overview: string;
     posterPath: string;
@@ -21,14 +21,14 @@ interface MovieSearchResultParams {
 }
 
 export class MovieSearchResult {
-    readonly id: number;
+    readonly movieId: number;
     readonly title: string;
     readonly overview: string;
     readonly posterPath: string;
     readonly releaseDate: string;
 
-    constructor({id, title, overview, posterPath, releaseDate}: MovieSearchResultParams) {
-        this.id = id;
+    constructor({movieId, title, overview, posterPath, releaseDate}: MovieSearchResultParams) {
+        this.movieId = movieId;
         this.title = title;
         this.overview = overview;
         this.posterPath = posterPath;

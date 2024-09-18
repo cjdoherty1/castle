@@ -9,6 +9,7 @@ import {
 } from "../../business/movies/SearchResult";
 import { moviesTable } from "../schemas/moviesSchema";
 import { eq } from "drizzle-orm";
+import { NotFoundError } from "../../business/Errors";
 
 export class MovieRepository implements IMovieRepository {
     private databaseAdapter;
@@ -27,7 +28,7 @@ export class MovieRepository implements IMovieRepository {
         pageNumber: number
     ): Promise<MovieSearchResult[]> {
         try {
-            console.log("Searching TMDB for movies");
+            console.info("Searching TMDB for movies with search query: " + searchQuery);
             const multiSearchResults =
                 await this.movieApiAdapter.searchMultiMedia({
                     searchQuery: searchQuery,
@@ -39,7 +40,8 @@ export class MovieRepository implements IMovieRepository {
             );
             const flattenedMovieSearchResults = movieSearchResults.flat();
 
-            console.log("Searching TMDB for ");
+            console.info("Retrieved search results:");
+            console.info(flattenedMovieSearchResults);
             return flattenedMovieSearchResults;
         } catch (e) {
             console.log(e);
@@ -48,27 +50,59 @@ export class MovieRepository implements IMovieRepository {
     }
 
     async getMovieById(movieId: number): Promise<Movie> {
-        // try {
-        //     console.log("Getting movie from database");
-        //     const movieResponse = this.databaseAdapter
-        //         .select({
-        //             movieId: moviesTable.movieId,
-        //             title: moviesTable.title,
-        //             director: moviesTable.director,
-        //             posterPath: moviesTable.posterPath,
-        //         })
-        //         .from(moviesTable)
-        //         .where(eq(moviesTable.movieId, movieId));
-        //     //if (movieResponse)
-        // } catch (e) {
-        //     console.log(e);
-        //     throw e;
-        // }
-        return new Movie(1, "", "", "");
+        try {
+            console.info("Getting movie from database with movie id: " + movieId);
+            const drizzle = this.databaseAdapter.getClient();
+            const movieResponse = await drizzle
+                .select({
+                    movieId: moviesTable.movieId,
+                    title: moviesTable.title,
+                    director: moviesTable.director,
+                    posterPath: moviesTable.posterPath,
+                })
+                .from(moviesTable)
+                .where(eq(moviesTable.movieId, movieId));
+            if (movieResponse.length === 0) {
+                throw new NotFoundError("The Movie you requested could not be found");
+            }
+            const movie = new Movie(movieResponse[0].movieId, movieResponse[0].title, movieResponse[0].director, movieResponse[0].posterPath);
+            console.info('Retrieved movie from database:');
+            console.info(movie);
+            return movie;
+        } catch (e) {
+            console.info(e);
+            throw e;
+        }
     }
 
     async addMovie(movieId: number): Promise<Movie> {
-        return new Movie(1, "", "", "");
+        try {
+            console.info("Adding movie from TMDB to database with movie id: " + movieId)
+            const drizzle = this.databaseAdapter.getClient();
+            const tmdbMovie = await this.movieApiAdapter.getMovieByMovieId(movieId);
+            console.info('Got movie info from TMDB');
+            const director = await this.movieApiAdapter.getDirectorByMovieId(movieId);
+            console.info('Got director of movie from TMDB');
+            const movie = {
+                movieId: tmdbMovie.movieId,
+                title: tmdbMovie.title,
+                director: director,
+                posterPath: tmdbMovie.posterPath
+            }
+            const insertResponse = await drizzle.insert(moviesTable).values(movie).returning({
+                movieId: moviesTable.movieId,
+                title: moviesTable.title,
+                director: moviesTable.director,
+                posterPath: moviesTable.posterPath
+            });
+            const newMovie = new Movie(insertResponse[0].movieId, insertResponse[0].title, insertResponse[0].director, insertResponse[0].posterPath);
+            console.info('Inserted Movie into database:');
+            console.info(newMovie);
+            return newMovie;
+        } catch(e) {
+            console.info(e);
+            throw(e);
+        }
     }
 
     private convertToMovieSearchResult(

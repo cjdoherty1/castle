@@ -15,11 +15,11 @@ export class WatchlistController {
         next: NextFunction
     ): Promise<void> {
         try {
-            console.log("Getting watchlist by watchlist id");
+            console.info("Getting watchlist by watchlist id");
             const userId = req.token.sub;
             const watchlistId = parseInt(req.params[params.watchlistId]);
             const watchlist =
-                await this.watchlistRepository.getWatchlistByWatchListId(
+                await this.watchlistRepository.getWatchlistByWatchlistId(
                     watchlistId,
                     userId
                 );

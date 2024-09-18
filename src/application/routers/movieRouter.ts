@@ -12,3 +12,21 @@ movieRouter.get(
         movieController.searchMovie(req, res, next);
     }
 );
+
+movieRouter.get(
+    '/getMovieById/:' + params.movieId,
+    validateParams,
+    validateAuthentication,
+    (req: AuthRequest, res: Response, next: NextFunction) => {
+        movieController.getMovie(req, res, next);
+    }
+);
+
+movieRouter.post(
+    '/addMovie/:' + params.movieId,
+    validateParams,
+    validateAuthentication,
+    (req: AuthRequest, res: Response, next: NextFunction) => {
+        movieController.addMovie(req, res, next);
+    }
+);

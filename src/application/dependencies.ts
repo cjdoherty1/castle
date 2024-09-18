@@ -8,8 +8,8 @@ import { WatchlistController } from "./controllers/WatchlistController";
 export const databaseAdapter = new DatabaseAdapter();
 export const movieApiAdapter = new MovieApiAdapter();
 
-export const watchlistRepository = new WatchlistRepository(databaseAdapter, movieApiAdapter);
-export const watchlistController = new WatchlistController(watchlistRepository);
-
 export const movieRepository = new MovieRepository(databaseAdapter, movieApiAdapter);
 export const movieController = new MovieController(movieRepository);
+
+export const watchlistRepository = new WatchlistRepository(databaseAdapter, movieRepository);
+export const watchlistController = new WatchlistController(watchlistRepository);

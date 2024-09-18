@@ -31,7 +31,7 @@ export class MovieController {
         try {
             console.log("Getting movie");
             const movieId = req.params[params.movieId];
-            const movie = await this.movieRepository.getMovie(movieId);
+            const movie = await this.movieRepository.getMovieById(movieId);
             console.log("Retrieved movie:");
             console.log(movie);
             res.status(200).json({ movie: movie });
