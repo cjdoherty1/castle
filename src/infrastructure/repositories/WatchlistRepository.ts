@@ -110,12 +110,12 @@ export class WatchlistRepository implements IWatchlistRepository {
             const drizzle = this.databaseAdapter.getClient();
             const insertResponse =
                 await drizzle.execute(sql`insert into ${watchlistItemsTable} (watchlist_id, movie_id)
-                                  select w.id, m.movie_id
+                                  select w.watchlist_id, m.movie_id
                                   from ${watchlistsTable} w, ${moviesTable} m
-                                  where w.id = ${watchlistId} 
+                                  where w.watchlist_id = ${watchlistId} 
                                   and m.movie_id = ${movieId} 
                                   and w.user_id = ${userId}
-                                  returning ${watchlistItemsTable}.id, ${watchlistItemsTable}.watchlist_id, ${watchlistItemsTable}.movie_id`);
+                                  returning ${watchlistItemsTable}.watchlist_item_id, ${watchlistItemsTable}.watchlist_id, ${watchlistItemsTable}.movie_id`);
 
             let watchlistItemTableEntry: WatchlistItemTableEntry;
             if (insertResponse.length === 0) {
