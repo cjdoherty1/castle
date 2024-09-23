@@ -135,7 +135,7 @@ export class WatchlistRepository implements IWatchlistRepository {
                         watchlistId: watchlistId,
                         movieId: movieId
                     }).returning({
-                        id: watchlistItemsTable.watchlistId,
+                        id: watchlistItemsTable.watchlistItemId,
                         watchlistId: watchlistItemsTable.watchlistId,
                         movieId: watchlistItemsTable.movieId
                     });
