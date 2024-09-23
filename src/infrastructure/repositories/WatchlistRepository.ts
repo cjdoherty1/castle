@@ -56,7 +56,7 @@ export class WatchlistRepository implements IWatchlistRepository {
         const watchlistItemsResponse = await this.databaseAdapter
             .getClient()
             .select({
-                watchlistItemId: watchlistItemsTable.watchlistId,
+                watchlistItemId: watchlistItemsTable.watchlistItemId,
                 movieId: moviesTable.movieId,
                 title: moviesTable.title,
                 director: moviesTable.director,
