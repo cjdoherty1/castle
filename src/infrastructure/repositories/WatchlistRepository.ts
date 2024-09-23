@@ -51,7 +51,6 @@ export class WatchlistRepository implements IWatchlistRepository {
         console.log("Retrieved watchlist name from database");
 
         let watchlistName = watchlistNameResponse[0].watchlistName;
-        let watchlistIdResponse = watchlistNameResponse[0].watchlistId;
 
         const watchlistItemsResponse = await this.databaseAdapter
             .getClient()
@@ -80,7 +79,7 @@ export class WatchlistRepository implements IWatchlistRepository {
                     watchlistItemResponse.movieId,
                     watchlistItemResponse.title,
                     watchlistItemResponse.director,
-                    watchlistItemResponse.poster_path
+                    watchlistItemResponse.posterPath
                 );
                 watchlistItems.push(
                     new WatchlistItem(
