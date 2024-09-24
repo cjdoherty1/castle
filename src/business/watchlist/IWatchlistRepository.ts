@@ -1,6 +1,8 @@
 import { Watchlist, WatchlistItemTableEntry } from "./Watchlist";
 
 export interface IWatchlistRepository {
+    getAllWatchlists(userId: string): Promise<Watchlist[]>;
+
     getWatchlistByWatchlistId(watchlistId: number, userId: string): Promise<Watchlist>;
 
     addWatchlistItem(watchlistId: number, movieId: number, userId: string): Promise<WatchlistItemTableEntry>;

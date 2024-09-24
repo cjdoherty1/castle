@@ -9,6 +9,13 @@ import {
 
 const watchlistRouter = express.Router();
 
+watchlistRouter.get("/getAllWatchlists",
+    validateAuthentication,
+    (req: AuthRequest, res: Response, next: NextFunction) => {
+        watchlistController.getAllWatchlists(req, res, next);
+    }
+)
+
 watchlistRouter.get(
     "/getWatchlist/:" + params.watchlistId,
     validateParams,
