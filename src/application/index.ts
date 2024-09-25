@@ -5,5 +5,5 @@ databaseAdapter.start();
 
 const port = 31000;
 app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+    console.info(`Server is running on port ${port}`);
 });

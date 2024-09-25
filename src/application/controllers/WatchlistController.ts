@@ -9,17 +9,32 @@ export class WatchlistController {
         this.watchlistRepository = watchlistRepository;
     }
 
+
+    public async getAllWatchlists(req: AuthRequest, res: Response, next:NextFunction):Promise<void> {
+        try {
+            console.info("Getting all watchlists");
+            const userId = req.token.sub;
+            const allWatchlists = await this.watchlistRepository.getAllWatchlists(userId);
+            console.info("Got all watchlists");
+            console.info(allWatchlists);
+            res.json({allWatchlists})
+        } catch(e) {
+            console.log(e);
+            next(e);
+        }
+    }
+
     public async getWatchlistByWatchlistId(
         req: AuthRequest,
         res: Response,
         next: NextFunction
     ): Promise<void> {
         try {
-            console.log("Getting watchlist by watchlist id");
+            console.info("Getting watchlist by watchlist id");
             const userId = req.token.sub;
             const watchlistId = parseInt(req.params[params.watchlistId]);
             const watchlist =
-                await this.watchlistRepository.getWatchlistByWatchListId(
+                await this.watchlistRepository.getWatchlistByWatchlistId(
                     watchlistId,
                     userId
                 );

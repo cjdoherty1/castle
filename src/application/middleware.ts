@@ -16,7 +16,8 @@ export const params = {
     movieId: "movieId",
     watchlistItemId: "watchlistItemId",
     watchlistName: "watchlistName",
-    searchQuery: "searchQuery"
+    searchQuery: "searchQuery",
+    pageNumber: "pageNumber"
 };
 
 export const validateParams = [

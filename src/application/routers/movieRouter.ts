@@ -1,14 +1,32 @@
-import express from "express";
-import { params } from "../middleware";
-import { movieApiAdapter, movieRepository } from "../dependencies";
+import express, { NextFunction, Response } from "express";
+import { params, validateAuthentication, validateParams, AuthRequest } from "../middleware";
+import { movieApiAdapter, movieController } from "../dependencies";
 
 export const movieRouter = express.Router();
 
 movieRouter.get(
-    '/searchMultiMedia/',
-    async (req, res, next) => {
-        const searchResults = await movieApiAdapter.searchMultiMedia({ searchQuery: 'interstellar', page: 1 });
+    '/searchMultiMedia/:' + params.searchQuery + "/:" + params.pageNumber,
+    validateParams,
+    validateAuthentication,
+    (req: AuthRequest, res: Response, next: NextFunction) => {
+        movieController.searchMovie(req, res, next);
+    }
+);
 
-        res.json(searchResults);
+movieRouter.get(
+    '/getMovieById/:' + params.movieId,
+    validateParams,
+    validateAuthentication,
+    (req: AuthRequest, res: Response, next: NextFunction) => {
+        movieController.getMovie(req, res, next);
+    }
+);
+
+movieRouter.post(
+    '/addMovie/:' + params.movieId,
+    validateParams,
+    validateAuthentication,
+    (req: AuthRequest, res: Response, next: NextFunction) => {
+        movieController.addMovie(req, res, next);
     }
 );
