@@ -62,7 +62,7 @@ watchlistRouter.delete(
 );
 
 watchlistRouter.post(
-    "/createDefaultWatchlists",
+    "/",
     validateParams,
     validateAuthentication,
     (req: AuthRequest, res: Response, next: NextFunction) => {
