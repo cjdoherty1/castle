@@ -54,4 +54,13 @@ watchlistRouter.delete(
     }
 );
 
+watchlistRouter.post(
+    "/createDefaultWatchlists",
+    validateParams,
+    validateAuthentication,
+    (req: AuthRequest, res: Response, next: NextFunction) => {
+        watchlistController.createDefaultWatchlists(req, res, next);
+    }
+);
+
 export default watchlistRouter;

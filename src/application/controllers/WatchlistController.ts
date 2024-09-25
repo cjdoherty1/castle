@@ -79,6 +79,32 @@ export class WatchlistController {
         }
     }
 
+    public async createDefaultWatchlists(
+        req: AuthRequest,
+        res: Response,
+        next: NextFunction,
+    ): Promise<void> {
+        try {
+            console.info('Creating default watchlist and watched list');
+            const userId = req.token.sub;
+            const defaultWatchlist = await this.watchlistRepository.createWatchlist(
+                'Gotta See',
+                userId,
+            );
+            const defaultWatchedlist = await this.watchlistRepository.createWatchlist(
+                'Seen It',
+                userId,
+            );
+
+            console.info('Created default watchlist and watched list');
+            console.info({ watchlist: defaultWatchlist, watchedList: defaultWatchedlist });
+            res.status(201).json({ watchlist: defaultWatchlist, watchedList: defaultWatchedlist })
+        } catch (e) {
+            console.error(e);
+            next(e);
+        }
+    }
+
     public async deleteWatchlistItem(
         req: AuthRequest,
         res: Response,
