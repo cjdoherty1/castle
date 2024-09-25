@@ -4,13 +4,13 @@ import { AuthRequest } from "../middleware";
 import { params } from "../middleware";
 
 export class WatchlistController {
-    private watchlistRepository;
+    private watchlistRepository: WatchlistRepository;
     constructor(watchlistRepository: WatchlistRepository) {
         this.watchlistRepository = watchlistRepository;
     }
 
 
-    public async getAllWatchlists(req: AuthRequest, res: Response, next:NextFunction):Promise<void> {
+    public async getAllWatchlists(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
         try {
             console.info("Getting all watchlists");
             const userId = req.token.sub;

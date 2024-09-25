@@ -1,6 +1,6 @@
 import express, { NextFunction, Response } from "express";
 import { params, validateAuthentication, validateParams, AuthRequest } from "../middleware";
-import { movieApiAdapter, movieController } from "../dependencies";
+import { movieApiAdapter, movieController, movieReviewController } from "../dependencies";
 
 export const movieRouter = express.Router();
 
@@ -30,3 +30,12 @@ movieRouter.post(
         movieController.addMovie(req, res, next);
     }
 );
+
+movieRouter.post(
+    '/addMovieReview/:' + params.movieId,
+    validateParams,
+    validateAuthentication,
+    (req: AuthRequest, res: Response, next: NextFunction) => {
+        movieReviewController.createMovieReview(req, res, next);
+    }
+)

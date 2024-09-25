@@ -15,6 +15,13 @@ import { Movie } from "../../business/movies/Movie";
 import { NotFoundError, DatabaseError } from "../../business/Errors";
 import { MovieRepository } from "./MovieRepository";
 import { IWatchlistRepository } from "../../business/watchlist/IWatchlistRepository";
+import { movieReviewsTable } from "../schemas/movieReviewsSchema";
+import { MovieReview } from "../../business/movies/MovieReview";
+
+export interface GetAllWatchlistsResult {
+    watchlists: Watchlist[]
+    watchedLists: Watchlist[]
+}
 
 export class WatchlistRepository implements IWatchlistRepository {
     private databaseAdapter: DatabaseAdapter;
@@ -42,6 +49,7 @@ export class WatchlistRepository implements IWatchlistRepository {
                     title: moviesTable.title,
                     director: moviesTable.director,
                     posterPath: moviesTable.posterPath,
+                    isWatchedList: watchlistsTable.isWatchedList
                 })
                 .from(watchlistItemsTable)
                 .innerJoin(
@@ -61,9 +69,9 @@ export class WatchlistRepository implements IWatchlistRepository {
                 throw new NotFoundError("No watchlists found for user");
             }
 
-            const allWatchlists = allWatchlistsResponse.reduce((result, bigWatchlistItem) => {
+            const allWatchlists = allWatchlistsResponse.reduce(async (result, bigWatchlistItem) => {
                 let watchlist: Watchlist = result.find(w => w.watchlistId === bigWatchlistItem.watchlistId);
-                let movie = new Movie(bigWatchlistItem.movieId, bigWatchlistItem.title, bigWatchlistItem.director, bigWatchlistItem.posterPath);
+                let movie = await this.buildMovie(bigWatchlistItem, userId);
                 let watchlistItem = new WatchlistItem(bigWatchlistItem.watchlistItemId, movie)
 
                 if (watchlist) {
@@ -83,6 +91,39 @@ export class WatchlistRepository implements IWatchlistRepository {
                 throw new DatabaseError(e.message);
             }
         }
+    }
+
+    private async buildMovie(bigWatchlistItem, userId: string): Promise<Movie> {
+        const baseMovie = new Movie(bigWatchlistItem.movieId, bigWatchlistItem.title, bigWatchlistItem.director, bigWatchlistItem.posterPath);
+        if (bigWatchlistItem.isWatchedList) {
+            console.info('Retrieving movie review from database');
+
+            const drizzle = this.databaseAdapter.getClient();
+            const movieReviewResult = await drizzle.select({
+                reviewId: movieReviewsTable.reviewId,
+                score: movieReviewsTable.score,
+                review: movieReviewsTable.review,
+            })
+            .from(movieReviewsTable)
+            .where(and(
+                eq(movieReviewsTable.userId, userId),
+                eq(movieReviewsTable.movieId, bigWatchlistItem.movieId)
+            ))
+
+            if (movieReviewResult.length == 0) {
+                console.warn('No review found for this movie in a watched list');
+                return baseMovie;
+            }
+
+            console.info('Retrieved movie review from database');
+
+            const result = movieReviewResult[0];
+            const movieReview = new MovieReview(result.reviewId, result.score, result.review);
+
+            return new Movie(bigWatchlistItem.movieId, bigWatchlistItem.title, bigWatchlistItem.director, bigWatchlistItem.posterPath, movieReview);
+        }
+
+        return baseMovie;
     }
 
     async getWatchlistByWatchlistId(

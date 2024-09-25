@@ -17,7 +17,7 @@ export const params = {
     watchlistItemId: "watchlistItemId",
     watchlistName: "watchlistName",
     searchQuery: "searchQuery",
-    pageNumber: "pageNumber"
+    pageNumber: "pageNumber",
 };
 
 export const validateParams = [

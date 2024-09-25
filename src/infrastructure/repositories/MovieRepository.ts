@@ -12,7 +12,7 @@ import { eq } from "drizzle-orm";
 import { NotFoundError } from "../../business/Errors";
 
 export class MovieRepository implements IMovieRepository {
-    private databaseAdapter;
+    private databaseAdapter: DatabaseAdapter;
     private movieApiAdapter: MovieApiAdapter;
 
     constructor(
