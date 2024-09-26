@@ -109,6 +109,7 @@ export class WatchlistController {
             const defaultWatchedlist = await this.watchlistRepository.createWatchlist(
                 'Seen It',
                 userId,
+                true,
             );
 
             console.info('Created default watchlist and watched list');

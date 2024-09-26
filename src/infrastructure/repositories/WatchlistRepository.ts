@@ -38,7 +38,24 @@ export class WatchlistRepository implements IWatchlistRepository {
     async getAllWatchlists(userId: string): Promise<Watchlist[]> {
         try {
             console.info("Getting all watchlists from database");
+            console.info({ user: userId });
             const drizzle = this.databaseAdapter.getClient();
+
+            const watchlistsResponse = await drizzle
+                .select({
+                    watchlistId: watchlistsTable.watchlistId,
+                    watchlistName: watchlistsTable.watchlistName,
+                })
+                .from(watchlistsTable)
+                .where(eq(watchlistsTable.userId, userId));
+
+            if (watchlistsResponse.length === 0) {
+                console.warn('No watchlists found for this user');
+                console.info({ watchlistResponse: watchlistsResponse })
+                return [];
+            }
+
+            const watchlists = this.buildWatchlists(watchlistsResponse);
 
             const allWatchlistsResponse = await drizzle
                 .select({
@@ -65,10 +82,6 @@ export class WatchlistRepository implements IWatchlistRepository {
                 )
                 .where(eq(watchlistsTable.userId, userId));
 
-            if (allWatchlistsResponse.length === 0) {
-                throw new NotFoundError("No watchlists found for user");
-            }
-
             const allWatchlists = allWatchlistsResponse.reduce(async (result, bigWatchlistItem) => {
                 let watchlist: Watchlist = result.find(w => w.watchlistId === bigWatchlistItem.watchlistId);
                 let movie = await this.buildMovie(bigWatchlistItem, userId);
@@ -81,8 +94,7 @@ export class WatchlistRepository implements IWatchlistRepository {
                 }
 
                 return result;
-            }, []);
-
+            }, watchlists);
             return allWatchlists;
         } catch (e) {
             if (e instanceof NotFoundError) {
@@ -91,6 +103,10 @@ export class WatchlistRepository implements IWatchlistRepository {
                 throw new DatabaseError(e.message);
             }
         }
+    }
+
+    private buildWatchlists(watchlistsResponse): Watchlist[] {
+        return watchlistsResponse.map((watchlistResponse) => new Watchlist(watchlistResponse.watchlistId, watchlistResponse.watchlistName, []));
     }
 
     private async buildMovie(bigWatchlistItem, userId: string): Promise<Movie> {
@@ -288,13 +304,15 @@ export class WatchlistRepository implements IWatchlistRepository {
 
     async createWatchlist(
         watchlistName: string,
-        userId: string
+        userId: string,
+        isWatchedList: boolean = false,
     ): Promise<Watchlist> {
         try {
             console.log("Adding watchlist to database");
             const newWatchlist = {
                 userId: userId,
                 watchlistName: watchlistName,
+                isWatchedList: isWatchedList,
             };
             const createResponse = await this.databaseAdapter
                 .getClient()
