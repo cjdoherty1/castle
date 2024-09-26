@@ -82,7 +82,7 @@ export class WatchlistRepository implements IWatchlistRepository {
                 )
                 .where(eq(watchlistsTable.userId, userId));
 
-            const allWatchlists = allWatchlistsResponse.reduce(async (result, bigWatchlistItem) => {
+            const allWatchlists = await allWatchlistsResponse.reduce(async (result, bigWatchlistItem) => {
                 let watchlist: Watchlist = result.find(w => w.watchlistId === bigWatchlistItem.watchlistId);
                 let movie = await this.buildMovie(bigWatchlistItem, userId);
                 let watchlistItem = new WatchlistItem(bigWatchlistItem.watchlistItemId, movie)
@@ -95,6 +95,7 @@ export class WatchlistRepository implements IWatchlistRepository {
 
                 return result;
             }, watchlists);
+
             return allWatchlists;
         } catch (e) {
             if (e instanceof NotFoundError) {

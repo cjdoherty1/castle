@@ -16,7 +16,7 @@ export class WatchlistController {
             const userId = req.token.sub;
             const allWatchlists = await this.watchlistRepository.getAllWatchlists(userId);
             console.info("Got all watchlists");
-            console.info(allWatchlists);
+            console.info({ allWatchlists: allWatchlists });
             res.json({allWatchlists})
         } catch(e) {
             console.log(e);
