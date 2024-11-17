@@ -1,9 +1,9 @@
 export class MovieReview {
-    readonly reviewId: number;
+    readonly reviewId: string;
     readonly score: number;
     readonly review: string;
 
-    constructor(reviewId: number, score: number, review: string = '') {
+    constructor(reviewId: string, score: number, review: string = '') {
         this.reviewId = reviewId;
         this.score = score;
         this.review = review;

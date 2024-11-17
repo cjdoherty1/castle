@@ -1,9 +1,9 @@
-import { bigint, bigserial } from "drizzle-orm/pg-core";
+import { bigint, text, uuid } from "drizzle-orm/pg-core";
 import { castleSchema } from "./castleSchema";
 
 export const watchlistItemsTable = castleSchema.table("watchlist_items", {
-    watchlistItemId: bigserial("watchlist_item_id", { mode: "number" }).primaryKey(),
-    watchlistId: bigint("watchlist_id", { mode: "number" }),
+    watchlistItemId: uuid("watchlist_item_id").primaryKey(),
+    watchlistId: uuid("watchlist_id"),
     movieId: bigint("movie_id", { mode: "number" }),
 });
 

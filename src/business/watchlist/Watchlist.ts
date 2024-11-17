@@ -1,29 +1,29 @@
 import { Movie } from "../movies/Movie";
 
 export interface WatchlistItemTableEntry {
-    watchlistItemId: number;
-    watchlistId: number;
+    watchlistItemId: string;
+    watchlistId: string;
     movieId: number;
 }
 
 export class WatchlistItem {
-    readonly watchlistItemId: number;
+    readonly watchlistItemId: string;
     readonly movie: Movie;
 
-    constructor(watchlistItemId: number, movie: Movie) {
+    constructor(watchlistItemId: string, movie: Movie) {
         this.watchlistItemId = watchlistItemId;
         this.movie = movie;
     }
 }
 
 export class Watchlist {
-    readonly watchlistId: number;
+    readonly watchlistId: string;
     readonly watchlistName: string;
     readonly isWatchedList: boolean;
     readonly watchlistItems: WatchlistItem[] = [];
 
     constructor(
-        watchlistId: number,
+        watchlistId: string,
         watchlistName: string,
         isWatchedList: boolean,
         watchlistItems?: WatchlistItem[]

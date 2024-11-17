@@ -18,12 +18,13 @@ export const params = {
     watchlistName: "watchlistName",
     searchQuery: "searchQuery",
     pageNumber: "pageNumber",
+    watchedListId: "watchedListId"
 };
 
 export const validateParams = [
     param(params.watchlistId)
         .optional()
-        .isInt()
+        .isString()
         .notEmpty()
         .withMessage("Invalid watchlistId"),
     param(params.movieId)
@@ -33,7 +34,7 @@ export const validateParams = [
         .withMessage("Invalid movieId"),
     param(params.watchlistItemId)
         .optional()
-        .isInt()
+        .isString()
         .notEmpty()
         .withMessage("Invalid watchlistId"),
     param(params.watchlistName)

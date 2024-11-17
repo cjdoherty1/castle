@@ -26,7 +26,7 @@ watchlistRouter.get(
 );
 
 watchlistRouter.post(
-    "/addWatchlistItem/:" + params.watchlistId + "/:" + params.movieId,
+    "/addWatchlistItem/:" + params.watchlistId + "/:" + params.movieId + "/:" + params.watchlistItemId, 
     validateParams,
     validateAuthentication,
     (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -35,7 +35,7 @@ watchlistRouter.post(
 );
 
 watchlistRouter.post(
-    "/createWatchlist/:" + params.watchlistName,
+    "/createWatchlist/:" + params.watchlistName + "/:" + params.watchlistId,
     validateParams,
     validateAuthentication,
     (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -62,7 +62,7 @@ watchlistRouter.delete(
 );
 
 watchlistRouter.post(
-    "/createDefaultWatchlists",
+    "/createDefaultWatchlists/:" + params.watchlistId + "/:" + params.watchedListId,
     validateParams,
     validateAuthentication,
     (req: AuthRequest, res: Response, next: NextFunction) => {

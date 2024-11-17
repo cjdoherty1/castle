@@ -19,8 +19,8 @@ import { movieReviewsTable } from "../schemas/movieReviewsSchema";
 import { MovieReview } from "../../business/movies/MovieReview";
 
 export interface GetAllWatchlistsResult {
-    watchlists: Watchlist[]
-    watchedLists: Watchlist[]
+    watchlists: Watchlist[];
+    watchedLists: Watchlist[];
 }
 
 export class WatchlistRepository implements IWatchlistRepository {
@@ -45,17 +45,18 @@ export class WatchlistRepository implements IWatchlistRepository {
                 .select({
                     watchlistId: watchlistsTable.watchlistId,
                     watchlistName: watchlistsTable.watchlistName,
+                    isWatchedList: watchlistsTable.isWatchedList,
                 })
                 .from(watchlistsTable)
                 .where(eq(watchlistsTable.userId, userId));
 
             if (watchlistsResponse.length === 0) {
-                console.warn('No watchlists found for this user');
-                console.info({ watchlistResponse: watchlistsResponse })
+                console.warn("No watchlists found for this user");
+                console.info({ watchlistResponse: watchlistsResponse });
                 return [];
             }
 
-            //const watchlists = this.buildWatchlists(watchlistsResponse);
+            const watchlists = this.buildWatchlists(watchlistsResponse);
 
             const allWatchlistsResponse = await drizzle
                 .select({
@@ -66,7 +67,7 @@ export class WatchlistRepository implements IWatchlistRepository {
                     title: moviesTable.title,
                     director: moviesTable.director,
                     posterPath: moviesTable.posterPath,
-                    isWatchedList: watchlistsTable.isWatchedList
+                    isWatchedList: watchlistsTable.isWatchedList,
                 })
                 .from(watchlistItemsTable)
                 .innerJoin(
@@ -82,19 +83,39 @@ export class WatchlistRepository implements IWatchlistRepository {
                 )
                 .where(eq(watchlistsTable.userId, userId));
 
-                const allWatchlists = allWatchlistsResponse.reduce((result, bigWatchlistItem) => {
-                    let watchlist: Watchlist = result.find(w => w.watchlistId === bigWatchlistItem.watchlistId);
-                    let movie = new Movie(bigWatchlistItem.movieId, bigWatchlistItem.title, bigWatchlistItem.director, bigWatchlistItem.posterPath);
-                    let watchlistItem = new WatchlistItem(bigWatchlistItem.watchlistItemId, movie)
-    
+            const allWatchlists = allWatchlistsResponse.reduce(
+                (result, bigWatchlistItem) => {
+                    let watchlist: Watchlist = result.find(
+                        (w) => w.watchlistId === bigWatchlistItem.watchlistId
+                    );
+                    let movie = new Movie(
+                        bigWatchlistItem.movieId,
+                        bigWatchlistItem.title,
+                        bigWatchlistItem.director,
+                        bigWatchlistItem.posterPath
+                    );
+                    let watchlistItem = new WatchlistItem(
+                        bigWatchlistItem.watchlistItemId,
+                        movie
+                    );
+
                     if (watchlist) {
                         watchlist.watchlistItems.push(watchlistItem);
                     } else {
-                        result.push(new Watchlist(bigWatchlistItem.watchlistId, bigWatchlistItem.watchlistName, bigWatchlistItem.isWatchedList, [watchlistItem]));
+                        result.push(
+                            new Watchlist(
+                                bigWatchlistItem.watchlistId,
+                                bigWatchlistItem.watchlistName,
+                                bigWatchlistItem.isWatchedList,
+                                [watchlistItem]
+                            )
+                        );
                     }
-    
+
                     return result;
-                }, []);
+                },
+                watchlists
+            );
 
             return allWatchlists;
         } catch (e) {
@@ -106,45 +127,73 @@ export class WatchlistRepository implements IWatchlistRepository {
         }
     }
 
-    // private buildWatchlists(watchlistsResponse): Watchlist[] {
-    //     return watchlistsResponse.map((watchlistResponse) => new Watchlist(watchlistResponse.watchlistId, watchlistResponse.watchlistName, watchlistResponse.isWatchedList, []));
-    // }
+    private buildWatchlists(watchlistsResponse): Watchlist[] {
+        return watchlistsResponse.map(
+            (watchlistResponse) =>
+                new Watchlist(
+                    watchlistResponse.watchlistId,
+                    watchlistResponse.watchlistName,
+                    watchlistResponse.isWatchedList,
+                    []
+                )
+        );
+    }
 
-    // private async buildMovie(bigWatchlistItem, userId: string): Promise<Movie> {
-    //     const baseMovie = new Movie(bigWatchlistItem.movieId, bigWatchlistItem.title, bigWatchlistItem.director, bigWatchlistItem.posterPath);
-    //     if (bigWatchlistItem.isWatchedList) {
-    //         console.info('Retrieving movie review from database');
+    private async buildMovie(bigWatchlistItem, userId: string): Promise<Movie> {
+        const baseMovie = new Movie(
+            bigWatchlistItem.movieId,
+            bigWatchlistItem.title,
+            bigWatchlistItem.director,
+            bigWatchlistItem.posterPath
+        );
+        if (bigWatchlistItem.isWatchedList) {
+            console.info("Retrieving movie review from database");
 
-    //         const drizzle = this.databaseAdapter.getClient();
-    //         const movieReviewResult = await drizzle.select({
-    //             reviewId: movieReviewsTable.reviewId,
-    //             score: movieReviewsTable.score,
-    //             review: movieReviewsTable.review,
-    //         })
-    //         .from(movieReviewsTable)
-    //         .where(and(
-    //             eq(movieReviewsTable.userId, userId),
-    //             eq(movieReviewsTable.movieId, bigWatchlistItem.movieId)
-    //         ))
+            const drizzle = this.databaseAdapter.getClient();
+            const movieReviewResult = await drizzle
+                .select({
+                    reviewId: movieReviewsTable.reviewId,
+                    score: movieReviewsTable.score,
+                    review: movieReviewsTable.review,
+                })
+                .from(movieReviewsTable)
+                .where(
+                    and(
+                        eq(movieReviewsTable.userId, userId),
+                        eq(movieReviewsTable.movieId, bigWatchlistItem.movieId)
+                    )
+                );
 
-    //         if (movieReviewResult.length == 0) {
-    //             console.warn('No review found for this movie in a watched list');
-    //             return baseMovie;
-    //         }
+            if (movieReviewResult.length == 0) {
+                console.warn(
+                    "No review found for this movie in a watched list"
+                );
+                return baseMovie;
+            }
 
-    //         console.info('Retrieved movie review from database');
+            console.info("Retrieved movie review from database");
 
-    //         const result = movieReviewResult[0];
-    //         const movieReview = new MovieReview(result.reviewId, result.score, result.review);
+            const result = movieReviewResult[0];
+            const movieReview = new MovieReview(
+                result.reviewId,
+                result.score,
+                result.review
+            );
 
-    //         return new Movie(bigWatchlistItem.movieId, bigWatchlistItem.title, bigWatchlistItem.director, bigWatchlistItem.posterPath, movieReview);
-    //     }
+            return new Movie(
+                bigWatchlistItem.movieId,
+                bigWatchlistItem.title,
+                bigWatchlistItem.director,
+                bigWatchlistItem.posterPath,
+                movieReview
+            );
+        }
 
-    //     return baseMovie;
-    // }
+        return baseMovie;
+    }
 
     async getWatchlistByWatchlistId(
-        watchlistId: number,
+        watchlistId: string,
         userId: string
     ): Promise<Watchlist> {
         console.log("Getting watchlist from database");
@@ -153,7 +202,7 @@ export class WatchlistRepository implements IWatchlistRepository {
             .select({
                 watchlistId: watchlistsTable.watchlistId,
                 watchlistName: watchlistsTable.watchlistName,
-                isWatchedList: watchlistsTable.isWatchedList
+                isWatchedList: watchlistsTable.isWatchedList,
             })
             .from(watchlistsTable)
             .where(
@@ -190,7 +239,11 @@ export class WatchlistRepository implements IWatchlistRepository {
 
         let watchlist;
         if (watchlistItemsResponse.length === 0) {
-            watchlist = new Watchlist(watchlistId, watchlistName, isWatchedList);
+            watchlist = new Watchlist(
+                watchlistId,
+                watchlistName,
+                isWatchedList
+            );
         } else {
             let watchlistItems = [];
             let movie;
@@ -222,76 +275,62 @@ export class WatchlistRepository implements IWatchlistRepository {
     }
 
     async addWatchlistItem(
-        watchlistId: number,
+        watchlistId: string,
         movieId: number,
-        userId: string
+        userId: string,
+        watchlistItemId: string
     ): Promise<WatchlistItemTableEntry> {
         try {
             console.log("Adding watchlist item to database");
             const drizzle = this.databaseAdapter.getClient();
-            const insertResponse =
-                await drizzle.execute(sql`insert into ${watchlistItemsTable} (watchlist_id, movie_id)
-                                  select w.watchlist_id, m.movie_id
-                                  from ${watchlistsTable} w, ${moviesTable} m
-                                  where w.watchlist_id = ${watchlistId} 
-                                  and m.movie_id = ${movieId} 
-                                  and w.user_id = ${userId}
-                                  returning ${watchlistItemsTable}.watchlist_item_id, ${watchlistItemsTable}.watchlist_id, ${watchlistItemsTable}.movie_id`);
-
-            let watchlistItemTableEntry: WatchlistItemTableEntry;
-            if (insertResponse.length === 0) {
-                console.info("Either movie or watchlist does not exist");
-                console.info(
-                    "Checking if a watchlist exists for your user with id: " +
-                        watchlistId
+            const watchlistResponse = await drizzle
+                .select({
+                    watchlistId: watchlistsTable.watchlistId,
+                })
+                .from(watchlistsTable)
+                .where(
+                    and(
+                        eq(watchlistsTable.watchlistId, watchlistId),
+                        eq(watchlistsTable.userId, userId)
+                    )
                 );
-                const watchlistResponse = await drizzle
-                    .select({
-                        watchlistId: watchlistsTable.watchlistId,
-                    })
-                    .from(watchlistsTable)
-                    .where(
-                        and(
-                            eq(watchlistsTable.watchlistId, watchlistId),
-                            eq(watchlistsTable.userId, userId)
-                        )
-                    );
-                if (watchlistResponse.length === 0) {
-                    throw new NotFoundError("Watchlist could not be found");
-                } else {
-                    console.info(
-                        "Watchlist exists, adding movie to database with id: " +
-                            movieId
-                    );
-                    const newMovie = await this.movieRepository.addMovie(
-                        movieId
-                    );
-                    console.info("Added new movie to database:");
-                    console.info(newMovie);
-                    const insertWatchlistItem = await drizzle
-                        .insert(watchlistItemsTable)
-                        .values({
-                            watchlistId: watchlistId,
-                            movieId: movieId,
-                        })
-                        .returning({
-                            id: watchlistItemsTable.watchlistItemId,
-                            watchlistId: watchlistItemsTable.watchlistId,
-                            movieId: watchlistItemsTable.movieId,
-                        });
-                    watchlistItemTableEntry = {
-                        watchlistItemId: insertWatchlistItem[0].id,
-                        watchlistId: insertWatchlistItem[0].watchlistId,
-                        movieId: insertWatchlistItem[0].movieId,
-                    };
-                }
-            } else {
-                watchlistItemTableEntry = {
-                    watchlistItemId: insertResponse[0].id,
-                    watchlistId: insertResponse[0].watchlist_id,
-                    movieId: insertResponse[0].movie_id,
-                };
+            if (watchlistResponse.length === 0) {
+                throw new NotFoundError("Watchlist could not be found");
             }
+
+            const movieResponse = await drizzle
+                .select({
+                    movieId: moviesTable.movieId,
+                })
+                .from(moviesTable)
+                .where(eq(moviesTable.movieId, movieId));
+
+            if (movieResponse.length === 0) {
+                console.info(
+                    "Watchlist exists, but movie does not, adding movie to database with id: " +
+                        movieId
+                );
+                const newMovie = await this.movieRepository.addMovie(movieId);
+                console.info("Added new movie to database:");
+                console.info(newMovie);
+            }
+            const insertWatchlistItem = await drizzle
+                .insert(watchlistItemsTable)
+                .values({
+                    watchlistId: watchlistId,
+                    movieId: movieId,
+                    watchlistItemId: watchlistItemId,
+                })
+                .returning({
+                    watchlistItemId: watchlistItemsTable.watchlistItemId,
+                    watchlistId: watchlistItemsTable.watchlistId,
+                    movieId: watchlistItemsTable.movieId,
+                });
+            const watchlistItemTableEntry: WatchlistItemTableEntry = {
+                watchlistItemId: insertWatchlistItem[0].watchlistItemId,
+                watchlistId: insertWatchlistItem[0].watchlistId,
+                movieId: insertWatchlistItem[0].movieId,
+            };
 
             console.info("Added watchlist item to database:");
             console.info(watchlistItemTableEntry);
@@ -310,6 +349,7 @@ export class WatchlistRepository implements IWatchlistRepository {
         watchlistName: string,
         userId: string,
         isWatchedList: boolean = false,
+        watchlistId: string
     ): Promise<Watchlist> {
         try {
             console.log("Adding watchlist to database");
@@ -317,6 +357,7 @@ export class WatchlistRepository implements IWatchlistRepository {
                 userId: userId,
                 watchlistName: watchlistName,
                 isWatchedList: isWatchedList,
+                watchlistId: watchlistId,
             };
             const createResponse = await this.databaseAdapter
                 .getClient()
@@ -324,9 +365,8 @@ export class WatchlistRepository implements IWatchlistRepository {
                 .values(newWatchlist)
                 .returning({
                     watchlistId: watchlistsTable.watchlistId,
-                    userId: watchlistsTable.userId,
                     watchlistName: watchlistsTable.watchlistName,
-                    isWatchedList: watchlistsTable.isWatchedList
+                    isWatchedList: watchlistsTable.isWatchedList,
                 });
 
             const watchlist = new Watchlist(
@@ -343,7 +383,7 @@ export class WatchlistRepository implements IWatchlistRepository {
     }
 
     async deleteWatchlistItem(
-        watchlistItemId: number,
+        watchlistItemId: string,
         userId: string
     ): Promise<WatchlistItemTableEntry> {
         try {
@@ -381,7 +421,7 @@ export class WatchlistRepository implements IWatchlistRepository {
     }
 
     async deleteWatchlist(
-        watchlistId: number,
+        watchlistId: string,
         userId: string
     ): Promise<Watchlist> {
         try {

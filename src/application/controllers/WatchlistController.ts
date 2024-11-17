@@ -2,6 +2,8 @@ import { WatchlistRepository } from "../../infrastructure/repositories/Watchlist
 import { NextFunction, Response } from "express";
 import { AuthRequest } from "../middleware";
 import { params } from "../middleware";
+import { v4 as uuidv4 } from "uuid";
+import { param } from "express-validator";
 
 export class WatchlistController {
     private watchlistRepository: WatchlistRepository;
@@ -32,7 +34,7 @@ export class WatchlistController {
         try {
             console.info("Getting watchlist by watchlist id");
             const userId = req.token.sub;
-            const watchlistId = parseInt(req.params[params.watchlistId]);
+            const watchlistId = req.params[params.watchlistId];
             const watchlist =
                 await this.watchlistRepository.getWatchlistByWatchlistId(
                     watchlistId,
@@ -54,14 +56,17 @@ export class WatchlistController {
     ): Promise<void> {
         try {
             console.log("Adding watchlist item");
-            const watchlistId = parseInt(req.params[params.watchlistId]);
+            const watchlistId = req.params[params.watchlistId];
+            console.log(watchlistId)
             const movieId = parseInt(req.params[params.movieId]);
             const userId = req.token.sub;
+            const watchlistItemId = req.params[params.watchlistItemId]
             const watchlistItem =
                 await this.watchlistRepository.addWatchlistItem(
                     watchlistId,
                     movieId,
-                    userId
+                    userId,
+                    watchlistItemId
                 );
             console.log("Added watchlist by watchlist id:");
             console.log(watchlistItem);
@@ -81,9 +86,12 @@ export class WatchlistController {
             console.log("Creating watchlist");
             const watchlistName = req.params[params.watchlistName];
             const userId = req.token.sub;
+            const watchlistId = req.params[params.watchlistId]
             const watchlist = await this.watchlistRepository.createWatchlist(
                 watchlistName,
-                userId
+                userId,
+                false,
+                watchlistId
             );
             console.log("Created watchlist:");
             console.log(watchlist);
@@ -102,14 +110,19 @@ export class WatchlistController {
         try {
             console.info('Creating default watchlist and watched list');
             const userId = req.token.sub;
+            const wlid = req.params[params.watchlistId];
+            const wedid = req.params[params.watchedListId]
             const defaultWatchlist = await this.watchlistRepository.createWatchlist(
-                'Gotta See',
+                'Watchlist',
                 userId,
+                false,
+                wlid
             );
             const defaultWatchedlist = await this.watchlistRepository.createWatchlist(
-                'Seen It',
+                'Watched',
                 userId,
                 true,
+                wedid
             );
 
             console.info('Created default watchlist and watched list');
@@ -128,9 +141,7 @@ export class WatchlistController {
     ): Promise<void> {
         try {
             console.log("Deleted watchlist item");
-            const watchlistItemId = parseInt(
-                req.params[params.watchlistItemId]
-            );
+            const watchlistItemId = req.params[params.watchlistItemId];
             const userId = req.token.sub;
             const watchlistItem =
                 await this.watchlistRepository.deleteWatchlistItem(
@@ -153,7 +164,7 @@ export class WatchlistController {
     ): Promise<void> {
         try {
             console.log("Delete watchlist");
-            const watchlistId = parseInt(req.params[params.watchlistId]);
+            const watchlistId = req.params[params.watchlistId];
             const userId = req.token.sub;
             const watchlist = await this.watchlistRepository.deleteWatchlist(
                 watchlistId,
