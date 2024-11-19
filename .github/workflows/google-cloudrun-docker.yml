@@ -70,8 +70,7 @@ jobs:
         name: 'Authenticate to Google Cloud'
         uses: 'google-github-actions/auth@v2'
         with:
-          # credentials_json: '${{ secrets.CASTLE_SERVICE_ACCOUNT }}'
-          service_account: 'castle-service-account-763@boxwood-valve-432101-a8.iam.gserviceaccount.com'
+          credentials_json: '${{ secrets.CASTLE_SERVICE_ACCOUNT }}'
 
       # BEGIN - Docker auth and build
       #
