@@ -46,7 +46,7 @@ on:
 
 env:
   PROJECT_ID: '214452687037' # TODO: update to your Google Cloud project ID
-  REGION: 'us-east1' # TODO: update to your region
+  REGION: 'us-east4' # TODO: update to your region
   SERVICE: 'castle' # TODO: update to your service name
   WORKLOAD_IDENTITY_PROVIDER: 'projects/214452687037/locations/global/workloadIdentityPools/castle/providers/castle-provider ' # TODO: update to your workload identity provider
 
@@ -86,7 +86,6 @@ jobs:
         run: |-
           DOCKER_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{ github.sha }}"
           docker build --tag "${DOCKER_TAG}" .
-          gcloud auth configure-docker us-east1-docker.pkg.dev
           docker push "${DOCKER_TAG}"
       - name: 'Deploy to Cloud Run'
 
