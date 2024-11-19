@@ -44,4 +44,4 @@ jobs:
 
     - name: Build Docker image
       run: |
-        docker build -t gcr.io/${{ secrets.GCP_PROJECT }}/${{ secrets.SERVICE_NAME }}:${{ github.sha }} .
+        docker build -t gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}:${{ github.sha }} .
