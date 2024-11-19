@@ -17,7 +17,7 @@ on:
 env:
   PROJECT_ID: 'boxwood-valve-432101-a8' # TODO: update to your Google Cloud project ID
   REGION: 'us-east4' # TODO: update to your region
-  SERVICE: 'castle-api' # TODO: update to your service name
+  SERVICE: 'castle-docker-image' # TODO: update to your service name
 
 jobs:
   build-and-deploy:
