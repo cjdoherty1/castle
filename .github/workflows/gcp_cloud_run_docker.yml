@@ -48,5 +48,5 @@ jobs:
 
     - name: Push Docker image to Google Container Registry
       run: |
-        docker push gcr.io/${{ secrets.GCP_PROJECT }}/${{ secrets.SERVICE_NAME }}/${{ github.sha }}
+        docker push gcr.io/${{ seenvrets.PROJECT_ID }}/${{ env.SERVICE }}/${{ github.sha }}
 
