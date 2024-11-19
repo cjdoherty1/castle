@@ -15,7 +15,7 @@ on:
     branches:
       - main  # Trigger deployment when pushing to the main branch
 env:
-  PROJECT_ID: '214452687037' # TODO: update to your Google Cloud project ID
+  PROJECT_ID: 'boxwood-valve-432101-a8' # TODO: update to your Google Cloud project ID
   REGION: 'us-east1' # TODO: update to your region
   SERVICE: 'castle-api' # TODO: update to your service name
 
