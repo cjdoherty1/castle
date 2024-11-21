@@ -1,0 +1,59 @@
+name: Deploy to Google Cloud Run
+
+on:
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'warning'
+      environment:
+        description: 'Environment to deploy'
+        required: false
+        default: 'development'
+  push:
+    branches:
+      - main  # Trigger deployment when pushing to the main branch
+env:
+  PROJECT_ID: 'boxwood-valve-432101-a8' # TODO: update to your Google Cloud project ID
+  REGION: 'us-east4' # TODO: update to your region
+  SERVICE: 'castle-docker-image' # TODO: update to your service name
+
+jobs:
+  build-and-deploy:
+    name: Build and Deploy to Cloud Run
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Authenticate with Google Cloud
+      uses: google-github-actions/auth@v1
+      with:
+        credentials_json: '${{ secrets.CASTLE_SERVICE_ACCOUNT }}'
+
+    - name: Set up Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
+      with:
+        project_id: ${{ secrets.GCP_PROJECT }}
+        export_default_credentials: true
+
+    - name: Configure Docker
+      run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
+
+    - name: Build Docker image
+      run: |
+        docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ github.sha }} .
+
+    - name: Push Docker image to Google Container Registry
+      run: |
+        docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ github.sha }}
+
+    - name: Deploy to Google Cloud Run
+      run: |
+        gcloud run deploy ${{ env.SERVICE }} \
+          --image ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ github.sha }} \
+          --region ${{ env.REGION }} \
+          --platform managed \
+          --allow-unauthenticated
