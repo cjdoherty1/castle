@@ -46,9 +46,7 @@ jobs:
     - name: Build Docker image
       run: |
         docker build --build-arg DATABASE_URL=${{secrets.DATABASE_URL}} --build-arg SUPABASE_JWT_SECRET=${{secrets.SUPABASE_JWT_SECRET}} --build-arg TMDB_API_READ_ACCESS_TOKEN=${{secrets.TMDB_API_READ_ACCESS_TOKEN}} \
-        -t ${{ env.REGION }}-docker.pkg.dev/
-        ${{ env.PROJECT_ID }}/${{ env.SERVICE }}/
-        ${{ github.sha }} .
+        -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ github.sha }} .
 
     - name: Push Docker image to Google Container Registry
       run: |
