@@ -7,6 +7,7 @@ export class DatabaseAdapter {
 
     start() {
         const connectionString = process.env.DATABASE_URL;
+        console.log("Connection String: ");
         console.log(connectionString);
 
         // Disable prefetch as it is not supported for "Transaction" pool mode
