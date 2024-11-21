@@ -8,5 +8,5 @@ COPY tsconfig.json .
 RUN yarn install --frozen-lockfile
 COPY src/ src/
 RUN yarn tsc
-EXPOSE 3000
+EXPOSE 8080
 CMD node ./dist/src/application/index.js
