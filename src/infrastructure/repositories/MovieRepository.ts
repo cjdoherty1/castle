@@ -57,15 +57,18 @@ export class MovieRepository implements IMovieRepository {
                 .select({
                     movieId: moviesTable.movieId,
                     title: moviesTable.title,
-                    director: moviesTable.director,
+                    credits: moviesTable.credits,
                     posterPath: moviesTable.posterPath,
+                    genres: moviesTable.genres,
+                    overview: moviesTable.overview,
+                    rating: moviesTable.rating
                 })
                 .from(moviesTable)
                 .where(eq(moviesTable.movieId, movieId));
             if (movieResponse.length === 0) {
                 throw new NotFoundError("The Movie you requested could not be found");
             }
-            const movie = new Movie(movieResponse[0].movieId, movieResponse[0].title, movieResponse[0].director, movieResponse[0].posterPath);
+            const movie = new Movie(movieResponse[0].movieId, movieResponse[0].title, movieResponse[0].credits, movieResponse[0].posterPath, movieResponse[0].genres, movieResponse[0].overview, movieResponse[0].rating);
             console.info('Retrieved movie from database:');
             console.info(movie);
             return movie;
@@ -79,23 +82,18 @@ export class MovieRepository implements IMovieRepository {
         try {
             console.info("Adding movie from TMDB to database with movie id: " + movieId)
             const drizzle = this.databaseAdapter.getClient();
-            const tmdbMovie = await this.movieApiAdapter.getMovieByMovieId(movieId);
+            const movie: Movie = await this.movieApiAdapter.getMovieByMovieId(movieId);
             console.info('Got movie info from TMDB');
-            const director = await this.movieApiAdapter.getDirectorByMovieId(movieId);
-            console.info('Got director of movie from TMDB');
-            const movie = {
-                movieId: tmdbMovie.movieId,
-                title: tmdbMovie.title,
-                director: director,
-                posterPath: tmdbMovie.posterPath
-            }
             const insertResponse = await drizzle.insert(moviesTable).values(movie).returning({
                 movieId: moviesTable.movieId,
                 title: moviesTable.title,
-                director: moviesTable.director,
-                posterPath: moviesTable.posterPath
+                credits: moviesTable.credits,
+                posterPath: moviesTable.posterPath,
+                genres: moviesTable.genres,
+                overview: moviesTable.overview,
+                rating: moviesTable.rating
             });
-            const newMovie = new Movie(insertResponse[0].movieId, insertResponse[0].title, insertResponse[0].director, insertResponse[0].posterPath);
+            const newMovie = new Movie(insertResponse[0].movieId, insertResponse[0].title, insertResponse[0].credits, insertResponse[0].posterPath, insertResponse[0].genres, insertResponse[0].overview, insertResponse[0].rating);
             console.info('Inserted Movie into database:');
             console.info(newMovie);
             return newMovie;

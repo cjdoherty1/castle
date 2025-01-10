@@ -5,7 +5,7 @@ import {
     MultiMediaSearchResult,
     PersonSearchResult,
 } from "../../business/movies/SearchResult";
-import { Movie } from "../../business/movies/Movie";
+import { Movie, Credits, Director, Rating } from "../../business/movies/Movie";
 
 const MOVIE_API_BASE_URL = "https://api.themoviedb.org/3/";
 
@@ -95,11 +95,22 @@ export class MovieApiAdapter {
                 );
             }
             const tmdbMovie = await response.json();
+            const credits = await this.getCreditsByMovieId(movieId);
+            const genres = tmdbMovie.genres.map(g => g.name);
+            const rating: Rating = {
+                rating: tmdbMovie.vote_average,
+                ratingCount: tmdbMovie.vote_count
+            }
+            console.log("HERE")
+            console.log(tmdbMovie.rating)
             const movie = new Movie(
                 tmdbMovie.id,
                 tmdbMovie.title,
-                "",
-                tmdbMovie.poster_path
+                credits,
+                tmdbMovie.poster_path,
+                genres,
+                tmdbMovie.overview,
+                rating,
             );
 
             return movie;
@@ -109,7 +120,7 @@ export class MovieApiAdapter {
         }
     }
 
-    async getDirectorByMovieId(movieId: number): Promise<string> {
+    async getCreditsByMovieId(movieId: number): Promise<Credits> {
         try {
             console.log(
                 "Getting accessing TMDB to get director for movie with id: " +
@@ -138,10 +149,19 @@ export class MovieApiAdapter {
             }
             const tmdbCredits = await response.json();
             const crew = tmdbCredits["crew"];
-            const director = crew.filter(
+            const cast = tmdbCredits["cast"];
+            const directorInfo = crew.filter(
                 (member) => member.job === "Director"
-            )[0].name;
-            return director;
+            )[0];
+            const director: Director = {
+                name: directorInfo.name,
+                profilePath: directorInfo.profilePath
+            }
+            const credits: Credits = {
+                director: director,
+                cast: cast
+            }
+            return credits;
         } catch (e) {
             console.log("Failed to get director from TMDB", { error: e });
             throw e;

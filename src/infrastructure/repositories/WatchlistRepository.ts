@@ -65,8 +65,11 @@ export class WatchlistRepository implements IWatchlistRepository {
                     watchlistItemId: watchlistItemsTable.watchlistItemId,
                     movieId: moviesTable.movieId,
                     title: moviesTable.title,
-                    director: moviesTable.director,
+                    credits: moviesTable.credits,
                     posterPath: moviesTable.posterPath,
+                    genres: moviesTable.genres,
+                    overview: moviesTable.overview,
+                    rating: moviesTable.rating,
                     isWatchedList: watchlistsTable.isWatchedList,
                 })
                 .from(watchlistItemsTable)
@@ -91,8 +94,11 @@ export class WatchlistRepository implements IWatchlistRepository {
                     let movie = new Movie(
                         bigWatchlistItem.movieId,
                         bigWatchlistItem.title,
-                        bigWatchlistItem.director,
-                        bigWatchlistItem.posterPath
+                        bigWatchlistItem.credits,
+                        bigWatchlistItem.posterPath,
+                        bigWatchlistItem.genres,
+                        bigWatchlistItem.overview,
+                        bigWatchlistItem.rating
                     );
                     let watchlistItem = new WatchlistItem(
                         bigWatchlistItem.watchlistItemId,
@@ -143,8 +149,12 @@ export class WatchlistRepository implements IWatchlistRepository {
         const baseMovie = new Movie(
             bigWatchlistItem.movieId,
             bigWatchlistItem.title,
-            bigWatchlistItem.director,
-            bigWatchlistItem.posterPath
+            bigWatchlistItem.credits,
+            bigWatchlistItem.posterPath,
+            bigWatchlistItem.genres,
+            bigWatchlistItem.overview,
+            bigWatchlistItem.rating
+            
         );
         if (bigWatchlistItem.isWatchedList) {
             console.info("Retrieving movie review from database");
@@ -183,8 +193,11 @@ export class WatchlistRepository implements IWatchlistRepository {
             return new Movie(
                 bigWatchlistItem.movieId,
                 bigWatchlistItem.title,
-                bigWatchlistItem.director,
+                bigWatchlistItem.credits,
                 bigWatchlistItem.posterPath,
+                bigWatchlistItem.genres,
+                bigWatchlistItem.overview,
+                bigWatchlistItem.rating,
                 movieReview
             );
         }
@@ -227,8 +240,11 @@ export class WatchlistRepository implements IWatchlistRepository {
                 watchlistItemId: watchlistItemsTable.watchlistItemId,
                 movieId: moviesTable.movieId,
                 title: moviesTable.title,
-                director: moviesTable.director,
+                credits: moviesTable.credits,
                 posterPath: moviesTable.posterPath,
+                genres: moviesTable.genres,
+                overview: moviesTable.overview,
+                rating: moviesTable.rating
             })
             .from(watchlistItemsTable)
             .innerJoin(
@@ -251,8 +267,11 @@ export class WatchlistRepository implements IWatchlistRepository {
                 movie = new Movie(
                     watchlistItemResponse.movieId,
                     watchlistItemResponse.title,
-                    watchlistItemResponse.director,
-                    watchlistItemResponse.posterPath
+                    watchlistItemResponse.credits,
+                    watchlistItemResponse.posterPath,
+                    watchlistItemResponse.genres,
+                    watchlistItemResponse.overview,
+                    watchlistItemResponse.rating
                 );
                 watchlistItems.push(
                     new WatchlistItem(
@@ -326,6 +345,7 @@ export class WatchlistRepository implements IWatchlistRepository {
                     watchlistId: watchlistItemsTable.watchlistId,
                     movieId: watchlistItemsTable.movieId,
                 });
+            
             const watchlistItemTableEntry: WatchlistItemTableEntry = {
                 watchlistItemId: insertWatchlistItem[0].watchlistItemId,
                 watchlistId: insertWatchlistItem[0].watchlistId,

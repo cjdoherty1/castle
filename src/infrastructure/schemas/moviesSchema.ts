@@ -1,11 +1,14 @@
-import { bigserial, text } from "drizzle-orm/pg-core";
+import { bigserial, text, jsonb } from "drizzle-orm/pg-core";
 import { castleSchema } from "./castleSchema";
 
 export const moviesTable = castleSchema.table("movies", {
     movieId: bigserial("movie_id", { mode: "number" }).primaryKey(),
     title: text("title"),
-    director: text("director"),
+    credits: jsonb("credits"),
     posterPath: text("poster_path"),
+    genres: text("genres").array(),
+    overview: text("overview"),
+    rating: jsonb("rating")
 });
 
 export type InsertMovies = typeof moviesTable.$inferInsert;
