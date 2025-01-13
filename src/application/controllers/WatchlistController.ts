@@ -61,16 +61,16 @@ export class WatchlistController {
             const movieId = parseInt(req.params[params.movieId]);
             const userId = req.token.sub;
             const watchlistItemId = req.params[params.watchlistItemId]
-            const watchlistItem =
+            const movie =
                 await this.watchlistRepository.addWatchlistItem(
                     watchlistId,
                     movieId,
                     userId,
                     watchlistItemId
                 );
-            console.log("Added watchlist by watchlist id:");
-            console.log(watchlistItem);
-            res.status(201).json({ watchlistItem: watchlistItem });
+            console.log("Added movie to watchlist:");
+            console.log(movie);
+            res.status(201).json({movie});
         } catch (e) {
             console.log(e);
             next(e);

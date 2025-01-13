@@ -5,7 +5,7 @@ import {
     MultiMediaSearchResult,
     PersonSearchResult,
 } from "../../business/movies/SearchResult";
-import { Movie, Credits, Director, Rating } from "../../business/movies/Movie";
+import { Movie, Credits, Director, Rating, CastMember } from "../../business/movies/Movie";
 
 const MOVIE_API_BASE_URL = "https://api.themoviedb.org/3/";
 
@@ -149,7 +149,14 @@ export class MovieApiAdapter {
             }
             const tmdbCredits = await response.json();
             const crew = tmdbCredits["crew"];
-            const cast = tmdbCredits["cast"];
+            const cast: CastMember[] = tmdbCredits["cast"].map((member) => {
+                return {
+                    name: member.name,
+                    profilePath: member.profile_path,
+                    character: member.character,
+                    knownForDepartment: member.known_for_department
+                }
+            });
             const directorInfo = crew.filter(
                 (member) => member.job === "Director"
             )[0];

@@ -12,13 +12,9 @@ export interface Director {
     profilePath: string;
 }
 
-export interface Cast {
-    castMembers: CastMember[];
-}
-
 export interface Credits {
     director: Director;
-    cast: Cast;
+    cast: CastMember[];
 }
 
 export interface Rating {
